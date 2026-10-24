@@ -164,11 +164,12 @@ CUSTOM_CSS = """
     
     /* Predictor Result Cards */
     .predict-card {
-        background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+        background: linear-gradient(135deg, #0A1931 0%, #152A55 100%);
         border: 2px solid #D4AF37;
         border-radius: 16px;
         padding: 1.8rem;
-        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.25);
+        color: #FFFFFF;
     }
     .predict-badge {
         display: inline-block;
@@ -847,31 +848,42 @@ elif menu == "Interactive Athlete Predictor (Live AI)":
     with col_right:
         st.markdown("### 🎯 Artificial Intelligence Predictions")
         
-        # Interactive Plotly Gauge for Medal Probability
+        # Interactive Plotly Gauge for Medal Probability (Bright White Title and %)
         fig_gauge = go.Figure(go.Indicator(
             mode="gauge+number",
             value=pred_prob,
-            number={'suffix': "%", 'font': {'size': 38, 'color': '#0A1931'}},
-            title={'text': "Olympic Medal Probability", 'font': {'size': 18, 'color': '#0A1931'}},
+            number={'suffix': "%", 'font': {'size': 44, 'color': '#FFFFFF'}},
+            title={'text': "Olympic Medal Probability", 'font': {'size': 20, 'color': '#FFFFFF'}},
             gauge={
-                'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': "#0A1931"},
-                'bar': {'color': "#D4AF37", 'thickness': 0.3},
-                'bgcolor': "#FFFFFF",
+                'axis': {
+                    'range': [0, 100],
+                    'tickwidth': 1,
+                    'tickcolor': "#FFFFFF",
+                    'tickfont': {'color': '#FFFFFF', 'size': 12}
+                },
+                'bar': {'color': "#D4AF37", 'thickness': 0.35},
+                'bgcolor': "rgba(255, 255, 255, 0.08)",
                 'borderwidth': 2,
-                'bordercolor': "#E2E8F0",
+                'bordercolor': "#D4AF37",
                 'steps': [
-                    {'range': [0, 35], 'color': '#F1F5F9'},
-                    {'range': [35, 60], 'color': '#E2E8F0'},
-                    {'range': [60, 100], 'color': '#FEF3C7'}
+                    {'range': [0, 35], 'color': 'rgba(255, 255, 255, 0.15)'},
+                    {'range': [35, 60], 'color': 'rgba(255, 255, 255, 0.28)'},
+                    {'range': [60, 100], 'color': 'rgba(212, 175, 55, 0.45)'}
                 ],
                 'threshold': {
-                    'line': {'color': "#0A1931", 'width': 4},
-                    'thickness': 0.75,
+                    'line': {'color': "#FFFFFF", 'width': 4},
+                    'thickness': 0.8,
                     'value': 50
                 }
             }
         ))
-        fig_gauge.update_layout(height=260, margin=dict(l=20, r=20, t=40, b=10))
+        fig_gauge.update_layout(
+            height=280,
+            margin=dict(l=20, r=20, t=50, b=10),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font={'color': '#FFFFFF'}
+        )
         st.plotly_chart(fig_gauge, use_container_width=True)
 
         # Morphological Archetype Tag
@@ -889,16 +901,16 @@ elif menu == "Interactive Athlete Predictor (Live AI)":
         <div class="predict-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <div>
-                    <div style="font-size: 0.8rem; color: #64748B; font-weight: 600;">PREDICTED BODY MASS</div>
-                    <div style="font-size: 1.7rem; font-weight: 800; color: #0A1931;">{pred_weight:.1f} kg</div>
+                    <div style="font-size: 0.8rem; color: #94A3B8; font-weight: 600;">PREDICTED BODY MASS</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #FFFFFF;">{pred_weight:.1f} kg</div>
                 </div>
                 <div>
-                    <div style="font-size: 0.8rem; color: #64748B; font-weight: 600;">BODY MASS INDEX</div>
-                    <div style="font-size: 1.7rem; font-weight: 800; color: #0A1931;">{bmi:.1f} kg/m²</div>
+                    <div style="font-size: 0.8rem; color: #94A3B8; font-weight: 600;">BODY MASS INDEX</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #D4AF37;">{bmi:.1f} kg/m²</div>
                 </div>
             </div>
             <div style="margin-top: 0.5rem;">
-                <span style="background: #F1F5F9; color: {arch_color}; font-weight: 700; font-size: 0.85rem; padding: 4px 12px; border-radius: 9999px; border: 1px solid #CBD5E1;">
+                <span style="background: rgba(255, 255, 255, 0.12); color: #FFFFFF; font-weight: 700; font-size: 0.85rem; padding: 6px 14px; border-radius: 9999px; border: 1px solid #D4AF37;">
                     🏷️ {arch_type}
                 </span>
             </div>
