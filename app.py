@@ -38,7 +38,7 @@ def load_data():
 def get_trained_models(df_data):
     df_mod = df_data[df_data['year'] >= 1960].copy()
     
-    # Impute any missing biometrics (height, weight, age) with median to prevent NaN errors
+    # Impute missing biometrics (height, weight, age) with median to prevent NaN errors
     imputer = SimpleImputer(strategy='median')
     df_mod[['height', 'weight', 'age']] = imputer.fit_transform(df_mod[['height', 'weight', 'age']])
     
@@ -65,22 +65,22 @@ reg_model, clf_model, scaler = get_trained_models(df_raw)
 st.title("🏅 Olympic Medal Data Analysis Using Machine Learning")
 st.markdown("""
 **An End-to-End Machine Learning Research Platform & Interactive Dashboard**  
-*Covers 12 Practicals: Imputation, Preprocessing, Linear & Multiple Regression, KNN, Naive Bayes, Logistic Regression, K-Means, GMM, Ensembles, Cross-Validation & Hyperparameter Tuning.*
+*Statistical Imputation, Anti-Leakage Preprocessing, Linear & Multiple Regression, KNN, Naive Bayes, Logistic Regression, K-Means, GMM, Ensemble Learning, Cross-Validation & Hyperparameter Optimization.*
 """)
 
-# Sidebar Navigation
+# Sidebar Navigation with Clean Topic Names (No "Practical 1, 2, 3")
 st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Olympic_flag.svg/320px-Olympic_flag.svg.png", width=120)
 st.sidebar.title("Navigation")
 menu = st.sidebar.radio(
     "Choose a Section:",
     [
         "Project Overview & Data Explorer",
-        "Practicals 1 & 2: Imputation & Preprocessing",
-        "Practicals 3 & 4: Regression (Height & Weight)",
-        "Practicals 5, 6 & 7: Classification (Medal Winner)",
-        "Practicals 8 & 9: Morphological Clustering (K-Means & GMM)",
-        "Practical 10: Ensembles (Bagging & Random Forest)",
-        "Practicals 11 & 12: Validation & Hyperparameter Tuning",
+        "Missing Value Imputation & Data Preprocessing",
+        "Simple & Multiple Linear Regression",
+        "Supervised Classification: KNN, Naive Bayes & Logistic Regression",
+        "Morphological Clustering: K-Means & Gaussian Mixture Models",
+        "Ensemble Learning: Bagging & Random Forest",
+        "Cross-Validation & Hyperparameter Tuning",
         "Interactive ML Predictor (Live Inference)"
     ]
 )
@@ -122,9 +122,9 @@ if menu == "Project Overview & Data Explorer":
         ax.set_xlabel("Athletes")
         st.pyplot(fig)
 
-# SECTION 2: PRACTICALS 1 & 2
-elif menu == "Practicals 1 & 2: Imputation & Preprocessing":
-    st.header("P1: Missing Value Detection & Statistical Imputation")
+# SECTION 2: IMPUTATION & PREPROCESSING
+elif menu == "Missing Value Imputation & Data Preprocessing":
+    st.header("Missing Value Detection & Statistical Imputation")
     st.markdown("""
     - **Detection:** Analyzed missingness across attributes. `medal` has 85.3% $NaN$ (structural non-medalists), while `weight` (23.2%) and `height` (22.2%) contain genuine missing biometrics.
     - **Imputation Comparison:** Evaluated Mean, Median, and Mode strategies.
@@ -136,16 +136,16 @@ elif menu == "Practicals 1 & 2: Imputation & Preprocessing":
         display_fig("p1_imputation_distribution_comparison.png", "Density Comparison: Pre vs. Post Imputation")
 
     st.markdown("---")
-    st.header("P2: Data Preprocessing, Scaling & Anti-Leakage")
+    st.header("Data Preprocessing, Scaling & Anti-Leakage Protocol")
     st.markdown(r"""
     - **Anti-Leakage Protocol:** Evaluated `StandardScaler` and `MinMaxScaler` fit **exclusively** on training data.
     - **Validation Verification:** Train set scales to $\mu = 0.000, \sigma = 1.000$; test set scales to $\mu = -0.005, \sigma = 1.003$ without leakage.
     """)
     display_fig("p2_scaling_comparison_boxplots.png", "Raw vs. StandardScaler vs. MinMaxScaler Distributions")
 
-# SECTION 3: PRACTICALS 3 & 4
-elif menu == "Practicals 3 & 4: Regression (Height & Weight)":
-    st.header("P3 & P4: Simple and Multiple Linear Regression")
+# SECTION 3: REGRESSION
+elif menu == "Simple & Multiple Linear Regression":
+    st.header("Simple and Multiple Linear Regression (Height vs. Weight)")
     st.markdown("""
     - **Simple OLS Regression:** Height $\to$ Weight: $\\text{Weight} = -118.23 + 1.08 \\times \\text{Height}$ ($R^2 = 0.6348, \\text{RMSE} = 8.501\\text{ kg}$).
     - **Multiple Regression:** Height, Age, Sex, Season, Year, Sport $\to$ Weight ($R_{\\text{adj}}^2 = 0.7076, \\text{RMSE} = 7.603\\text{ kg}$).
@@ -153,44 +153,44 @@ elif menu == "Practicals 3 & 4: Regression (Height & Weight)":
     """)
     col1, col2 = st.columns(2)
     with col1:
-        display_fig("p3_simple_linear_regression.png", "P3: Height vs. Weight Regression Line & Residuals")
+        display_fig("p3_simple_linear_regression.png", "Height vs. Weight Regression Line & Residuals")
     with col2:
-        display_fig("p4_multiple_linear_regression.png", "P4: Multiple Regression Predictions & Error Distribution")
+        display_fig("p4_multiple_linear_regression.png", "Multiple Regression Predictions & Error Distribution")
 
-# SECTION 4: PRACTICALS 5, 6 & 7
-elif menu == "Practicals 5, 6 & 7: Classification (Medal Winner)":
-    st.header("P5, P6 & P7: Supervised Classification on Imbalanced Medal Data")
+# SECTION 4: CLASSIFICATION
+elif menu == "Supervised Classification: KNN, Naive Bayes & Logistic Regression":
+    st.header("Supervised Classification on Imbalanced Medal Data")
     st.markdown("""
-    - **Practical 5 (KNN):** Best $K=5$, $\\text{ROC-AUC} = 0.6133$. Demonstrates curse of dimensionality and sensitivity to scaling.
-    - **Practical 6 (Gaussian Naive Bayes):** $\\text{ROC-AUC} = 0.6115$. Extremely fast $\\mathcal{O}(Nd)$ inference.
-    - **Practical 7 (Logistic Regression):** Solves severe 14:86 class imbalance using `class_weight='balanced'`. Medalist recall increases from $0.1\\%$ to $58.2\\%$.
+    - **K-Nearest Neighbors (KNN):** Best $K=5$, $\\text{ROC-AUC} = 0.6133$. Demonstrates curse of dimensionality and sensitivity to scaling.
+    - **Gaussian Naive Bayes:** $\\text{ROC-AUC} = 0.6115$. Extremely fast $\\mathcal{O}(Nd)$ inference.
+    - **Regularized Logistic Regression:** Solves severe 14:86 class imbalance using `class_weight='balanced'`. Medalist recall increases from $0.1\\%$ to $58.2\\%$.
     """)
     col1, col2 = st.columns(2)
     with col1:
-        display_fig("p5_knn_evaluation.png", "P5: KNN Metrics vs. K and Confusion Matrix")
-        display_fig("p6_naive_bayes_evaluation.png", "P6: Gaussian Naive Bayes ROC Curve & Confusion Matrix")
+        display_fig("p5_knn_evaluation.png", "KNN Metrics vs. K and Confusion Matrix")
+        display_fig("p6_naive_bayes_evaluation.png", "Gaussian Naive Bayes ROC Curve & Confusion Matrix")
     with col2:
-        display_fig("p7_logistic_regression.png", "P7: Feature Odds Ratios & Cost-Balanced ROC Curves")
+        display_fig("p7_logistic_regression.png", "Feature Odds Ratios & Cost-Balanced ROC Curves")
 
-# SECTION 5: PRACTICALS 8 & 9
-elif menu == "Practicals 8 & 9: Morphological Clustering (K-Means & GMM)":
-    st.header("P8 & P9: Unsupervised Morphological Clustering")
+# SECTION 5: CLUSTERING
+elif menu == "Morphological Clustering: K-Means & Gaussian Mixture Models":
+    st.header("Unsupervised Morphological Clustering: K-Means & GMM")
     st.markdown("""
-    - **P8 (K-Means):** Elbow method and Silhouette scores reveal 3 natural athletic archetypes:
+    - **K-Means Clustering:** Elbow method and Silhouette scores reveal 3 natural athletic archetypes:
       1. **Power / Heavyweight:** High BMI (28.8), 95.4 kg (Weightlifters, throwers).
       2. **Compact / Endurance:** Low BMI (20.6), 57.1 kg (Gymnasts, runners).
       3. **Tall / Athletic:** Moderate BMI (22.9), 185 cm, 78.3 kg (Rowers, swimmers, basketballers).
-    - **P9 (GMM):** Expectation-Maximization fits full anisotropic Gaussian covariances, capturing natural height-weight elongation.
+    - **Gaussian Mixture Models (GMM):** Expectation-Maximization fits full anisotropic Gaussian covariances, capturing natural height-weight elongation.
     """)
     col1, col2 = st.columns(2)
     with col1:
-        display_fig("p8_kmeans_clustering.png", "P8: K-Means Inertia Elbow, Silhouette & Centroids")
+        display_fig("p8_kmeans_clustering.png", "K-Means Inertia Elbow, Silhouette & Centroids")
     with col2:
-        display_fig("p9_gmm_clustering.png", "P9: GMM AIC/BIC Component Selection & Ellipsoidal Clusters")
+        display_fig("p9_gmm_clustering.png", "GMM AIC/BIC Component Selection & Ellipsoidal Clusters")
 
-# SECTION 6: PRACTICAL 10
-elif menu == "Practical 10: Ensembles (Bagging & Random Forest)":
-    st.header("P10: Ensemble Learning Variance Reduction")
+# SECTION 6: ENSEMBLES
+elif menu == "Ensemble Learning: Bagging & Random Forest":
+    st.header("Ensemble Learning: Bagging & Random Forest Classifiers")
     st.markdown("""
     - **Variance Reduction Benchmark:**
       - Single Decision Tree: $\\text{ROC-AUC} = 0.5902$
@@ -200,18 +200,18 @@ elif menu == "Practical 10: Ensembles (Bagging & Random Forest)":
     """)
     display_fig("p10_ensemble_comparison.png", "Ensemble ROC Curves & Top Gini Feature Importances")
 
-# SECTION 7: PRACTICALS 11 & 12
-elif menu == "Practicals 11 & 12: Validation & Hyperparameter Tuning":
-    st.header("P11 & P12: Cross-Validation & Optimization")
+# SECTION 7: VALIDATION & TUNING
+elif menu == "Cross-Validation & Hyperparameter Tuning":
+    st.header("Cross-Validation & Hyperparameter Optimization")
     st.markdown(r"""
-    - **P11 (K-Fold vs. Stratified K-Fold):** Stratification cuts metric standard deviation by $40\%$ ($\pm 0.017 \to \pm 0.010$) and eliminates fold class shift.
-    - **P12 (GridSearchCV vs. RandomizedSearchCV):** Random search achieved matching test AUC ($0.6056$ vs. $0.6054$) in less than half the execution time ($6.1\text{s}$ vs. $13.8\text{s}$).
+    - **K-Fold vs. Stratified K-Fold:** Stratification cuts metric standard deviation by $40\%$ ($\pm 0.017 \to \pm 0.010$) and eliminates fold class shift.
+    - **GridSearchCV vs. RandomizedSearchCV:** Random search achieved matching test AUC ($0.6056$ vs. $0.6054$) in less than half the execution time ($6.1\text{s}$ vs. $13.8\text{s}$).
     """)
     col1, col2 = st.columns(2)
     with col1:
-        display_fig("p11_cross_validation_comparison.png", "P11: Cross-Validation Score Variance & Class Proportion Balance")
+        display_fig("p11_cross_validation_comparison.png", "Cross-Validation Score Variance & Class Proportion Balance")
     with col2:
-        display_fig("p12_hyperparameter_tuning.png", "P12: Search Time vs. Test ROC-AUC Comparison")
+        display_fig("p12_hyperparameter_tuning.png", "Search Time vs. Test ROC-AUC Comparison")
 
 # SECTION 8: INTERACTIVE PREDICTOR
 elif menu == "Interactive ML Predictor (Live Inference)":
