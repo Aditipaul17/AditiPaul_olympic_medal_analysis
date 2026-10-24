@@ -803,7 +803,7 @@ elif menu == "Cross-Validation & Hyperparameter Tuning":
 # ==============================================================================
 # SECTION 9: INTERACTIVE ATHLETE PREDICTOR (LIVE AI)
 # ==============================================================================
-elif menu == "Interactive Athlete Predictor (Live Inference)":
+elif menu == "Interactive Athlete Predictor (Live AI)":
     st.markdown("""
     <div class="olympic-hero">
         <span class="gold-badge">Live ML Inference Engine</span>
