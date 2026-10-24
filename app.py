@@ -229,13 +229,14 @@ elif menu == "Interactive ML Predictor (Live Inference)":
         year_in = st.slider("Olympic Year", min_value=1960, max_value=2024, value=2016, step=2)
         sport_in = st.selectbox("Sport Discipline", ["Athletics", "Swimming", "Gymnastics", "Rowing", "Cycling", "Other"])
 
-    # Use cached pre-trained models for instantaneous, zero-latency inference
+    # Format input with feature names to ensure zero warnings
     is_male = 1 if sex_in == "Male" else 0
     is_summer = 1 if season_in == "Summer" else 0
-    input_vec = np.array([[height_in, age_in, is_male, is_summer, year_in]])
+    reg_features = ['height', 'age', 'sex_male', 'season_summer', 'year']
+    input_df = pd.DataFrame([[height_in, age_in, is_male, is_summer, year_in]], columns=reg_features)
 
-    pred_weight = reg_model.predict(input_vec)[0]
-    input_sc = scaler.transform(input_vec)
+    pred_weight = reg_model.predict(input_df)[0]
+    input_sc = scaler.transform(input_df)
     pred_prob = clf_model.predict_proba(input_sc)[0][1] * 100
     bmi = pred_weight / ((height_in / 100) ** 2)
 
