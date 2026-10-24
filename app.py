@@ -12,6 +12,7 @@ import seaborn as sns
 from sklearn.linear_model import LinearRegression, LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
 from PIL import Image
 
 st.set_page_config(
@@ -33,7 +34,32 @@ def load_data():
         df = pd.read_csv(url)
     return df
 
+@st.cache_resource
+def get_trained_models(df_data):
+    df_mod = df_data[df_data['year'] >= 1960].copy()
+    
+    # Impute any missing biometrics (height, weight, age) with median to prevent NaN errors
+    imputer = SimpleImputer(strategy='median')
+    df_mod[['height', 'weight', 'age']] = imputer.fit_transform(df_mod[['height', 'weight', 'age']])
+    
+    df_mod['medal_won'] = df_mod['medal'].notnull().astype(int)
+    df_mod['sex_male'] = (df_mod['sex'] == 'M').astype(int)
+    df_mod['season_summer'] = (df_mod['season'] == 'Summer').astype(int)
+    
+    reg_features = ['height', 'age', 'sex_male', 'season_summer', 'year']
+    
+    # Fit regression model
+    reg_model = LinearRegression().fit(df_mod[reg_features], df_mod['weight'])
+    
+    # Fit classification model
+    scaler = StandardScaler()
+    X_sc = scaler.fit_transform(df_mod[reg_features])
+    clf_model = LogisticRegression(class_weight='balanced', max_iter=500, random_state=42).fit(X_sc, df_mod['medal_won'])
+    
+    return reg_model, clf_model, scaler
+
 df_raw = load_data()
+reg_model, clf_model, scaler = get_trained_models(df_raw)
 
 # App Header
 st.title("🏅 Olympic Medal Data Analysis Using Machine Learning")
@@ -111,7 +137,7 @@ elif menu == "Practicals 1 & 2: Imputation & Preprocessing":
 
     st.markdown("---")
     st.header("P2: Data Preprocessing, Scaling & Anti-Leakage")
-    st.markdown("""
+    st.markdown(r"""
     - **Anti-Leakage Protocol:** Evaluated `StandardScaler` and `MinMaxScaler` fit **exclusively** on training data.
     - **Validation Verification:** Train set scales to $\mu = 0.000, \sigma = 1.000$; test set scales to $\mu = -0.005, \sigma = 1.003$ without leakage.
     """)
@@ -177,9 +203,9 @@ elif menu == "Practical 10: Ensembles (Bagging & Random Forest)":
 # SECTION 7: PRACTICALS 11 & 12
 elif menu == "Practicals 11 & 12: Validation & Hyperparameter Tuning":
     st.header("P11 & P12: Cross-Validation & Optimization")
-    st.markdown("""
-    - **P11 (K-Fold vs. Stratified K-Fold):** Stratification cuts metric standard deviation by $40\\%$ ($\pm 0.017 \\to \pm 0.010$) and eliminates fold class shift.
-    - **P12 (GridSearchCV vs. RandomizedSearchCV):** Random search achieved matching test AUC ($0.6056$ vs. $0.6054$) in less than half the execution time ($6.1\\text{s}$ vs. $13.8\\text{s}$).
+    st.markdown(r"""
+    - **P11 (K-Fold vs. Stratified K-Fold):** Stratification cuts metric standard deviation by $40\%$ ($\pm 0.017 \to \pm 0.010$) and eliminates fold class shift.
+    - **P12 (GridSearchCV vs. RandomizedSearchCV):** Random search achieved matching test AUC ($0.6056$ vs. $0.6054$) in less than half the execution time ($6.1\text{s}$ vs. $13.8\text{s}$).
     """)
     col1, col2 = st.columns(2)
     with col1:
@@ -203,22 +229,7 @@ elif menu == "Interactive ML Predictor (Live Inference)":
         year_in = st.slider("Olympic Year", min_value=1960, max_value=2024, value=2016, step=2)
         sport_in = st.selectbox("Sport Discipline", ["Athletics", "Swimming", "Gymnastics", "Rowing", "Cycling", "Other"])
 
-    # Fast trained models for live inference
-    df_mod = df_raw[df_raw['year'] >= 1960].dropna(subset=['height', 'weight']).sample(n=10000, random_state=42)
-    df_mod['medal_won'] = df_mod['medal'].notnull().astype(int)
-    df_mod['sex_male'] = (df_mod['sex'] == 'M').astype(int)
-    df_mod['season_summer'] = (df_mod['season'] == 'Summer').astype(int)
-
-    # 1. Regression model: predict weight
-    reg_features = ['height', 'age', 'sex_male', 'season_summer', 'year']
-    reg_model = LinearRegression().fit(df_mod[reg_features], df_mod['weight'])
-
-    # 2. Classification model: predict medal probability
-    scaler = StandardScaler()
-    X_sc = scaler.fit_transform(df_mod[reg_features])
-    clf_model = LogisticRegression(class_weight='balanced', max_iter=500, random_state=42).fit(X_sc, df_mod['medal_won'])
-
-    # Format input
+    # Use cached pre-trained models for instantaneous, zero-latency inference
     is_male = 1 if sex_in == "Male" else 0
     is_summer = 1 if season_in == "Summer" else 0
     input_vec = np.array([[height_in, age_in, is_male, is_summer, year_in]])
