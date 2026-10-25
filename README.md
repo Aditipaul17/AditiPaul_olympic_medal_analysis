@@ -1,9 +1,12 @@
 # 🏅 Olympic Medal Data Analysis Using Machine Learning
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://aditipaulolympicmedalanalysis-t3qvjwlsmzfkzxhnee4avm.streamlit.app/)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.3%2B-orange.svg)](https://scikit-learn.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35%2B-red.svg)](https://streamlit.io/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+> 🚀 **Live Dashboard**: Experience the full interactive web application directly in your browser at **[aditipaulolympicmedalanalysis-t3qvjwlsmzfkzxhnee4avm.streamlit.app](https://aditipaulolympicmedalanalysis-t3qvjwlsmzfkzxhnee4avm.streamlit.app/)**
 
 An end-to-end Machine Learning research project and interactive web dashboard analyzing **120+ years of modern Olympic Games data (1896–2016)** across **271,116 athlete records**.
 
@@ -12,6 +15,12 @@ This project implements missing data imputation, anti-leakage feature scaling, s
 ---
 
 ## ⚡ Quick Start
+
+### 🌐 1. Live Deployment (Instant Access)
+No setup required! Open the live web app:
+👉 **[Olympic Medal Analysis - ML Dashboard](https://aditipaulolympicmedalanalysis-t3qvjwlsmzfkzxhnee4avm.streamlit.app/)**
+
+### 💻 2. Local Setup
 
 ```bash
 # 1. Clone repository
@@ -55,7 +64,7 @@ python main.py
 
 ## 🖥️ Interactive Web Dashboard (`app.py`)
 
-Run `streamlit run app.py` to open the local dashboard at **`http://localhost:8501`**. The dashboard is styled with a sleek Navy Blue & Gold aesthetic and divided into 8 modules:
+Access the deployed dashboard live at **[aditipaulolympicmedalanalysis-t3qvjwlsmzfkzxhnee4avm.streamlit.app](https://aditipaulolympicmedalanalysis-t3qvjwlsmzfkzxhnee4avm.streamlit.app/)** or run locally with `streamlit run app.py` (**`http://localhost:8501`**). The dashboard is styled with a sleek Navy Blue & Gold aesthetic and divided into 8 modules:
 
 1. **🔴 Dashboard Overview**: Key Olympic metrics (records, sports, medals, years), medal breakdown charts, top sports participation rankings, and an instant-search dataset explorer with CSV download.
 2. **🧹 Missing Value Intelligence & Preprocessing**: Missingness by feature, interactive imputation lab comparing Mean, Median, and Mode histograms before/after filling, and anti-leakage scaling (`StandardScaler` vs. `MinMaxScaler`).
