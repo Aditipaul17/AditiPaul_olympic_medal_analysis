@@ -616,6 +616,7 @@ with st.sidebar:
         "🤖 Supervised Classification: KNN, Naive Bayes & Logistic Regression",
         "🧩 Morphological Clustering: K-Means & GMM",
         "🌲 Ensemble Learning: Bagging & Random Forest",
+        "🏆 Best Model",
         "🎯 Cross-Validation & Hyperparameter Tuning",
         "🔮 Interactive Athlete Predictor (Live AI)"
     ]
@@ -633,6 +634,7 @@ with st.sidebar:
             "Morphological Clustering: K-Means & Gaussian Mixture Models",
         "🌲 Ensemble Learning: Bagging & Random Forest":
             "Ensemble Learning: Bagging & Random Forest",
+        "🏆 Best Model": "Best Model",
         "🎯 Cross-Validation & Hyperparameter Tuning":
             "Cross-Validation & Hyperparameter Tuning",
         "🔮 Interactive Athlete Predictor (Live AI)":
@@ -2907,6 +2909,205 @@ elif menu == "Ensemble Learning: Bagging & Random Forest":
                 "text/csv"
             )
 
+
+# SECTION: BEST MODEL
+elif menu == "Best Model":
+
+    import numpy as np
+    import pandas as pd
+    import streamlit as st
+
+    from sklearn.model_selection import train_test_split
+    from sklearn.pipeline import Pipeline
+    from sklearn.impute import SimpleImputer
+    from sklearn.linear_model import LinearRegression
+    from sklearn.tree import DecisionTreeRegressor
+    from sklearn.ensemble import RandomForestRegressor, BaggingRegressor
+    from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+    st.header("🏆 Best Model — Athlete Medal Predictor")
+    st.caption("Compare five regression models and automatically select the best one.")
+
+    data = df_raw.copy()
+
+    required = ["medal", "year", "age", "height", "weight",
+                "sex", "season", "sport"]
+
+    missing = [c for c in required if c not in data.columns]
+
+    if missing:
+        st.error(f"Missing columns: {', '.join(missing)}")
+    else:
+        data["year"] = pd.to_numeric(data["year"], errors="coerce")
+        data["medal_won"] = data["medal"].notna().astype(int)
+
+        data = data.dropna(subset=["year"])
+
+        if data.empty:
+            st.error("No valid Olympic year data is available.")
+            st.stop()
+
+        st.subheader("1. Filter Data")
+
+        c1, c2, c3 = st.columns(3)
+
+        min_year = int(data["year"].min())
+        max_year = int(data["year"].max())
+
+        with c1:
+            year_range = st.slider(
+                "Olympic Year",
+                min_year,
+                max_year,
+                (min_year, max_year),
+                key="best_year"
+            )
+
+        with c2:
+            sports = ["All"] + sorted(data["sport"].dropna().astype(str).unique())
+            sport = st.selectbox("Sport", sports, key="best_sport")
+
+        with c3:
+            seasons = ["All"] + sorted(data["season"].dropna().astype(str).unique())
+            season = st.selectbox("Season", seasons, key="best_season")
+
+        sexes = ["All"] + sorted(data["sex"].dropna().astype(str).unique())
+        sex = st.selectbox("Athlete Sex", sexes, key="best_sex")
+
+        data = data[data["year"].between(*year_range)]
+
+        if sport != "All":
+            data = data[data["sport"].astype(str) == sport]
+
+        if season != "All":
+            data = data[data["season"].astype(str) == season]
+
+        if sex != "All":
+            data = data[data["sex"].astype(str) == sex]
+
+        numeric_options = ["year", "age", "height", "weight"]
+
+        features = st.multiselect(
+            "Select numerical prediction features",
+            numeric_options,
+            default=["year", "age", "height", "weight"],
+            key="best_features"
+        )
+
+        if not features:
+            st.warning("Select at least one numerical feature.")
+            st.stop()
+
+        if len(data) < 30 or data["medal_won"].nunique() < 2:
+            st.warning("Not enough data after filtering. Please widen your filters.")
+            st.stop()
+
+        # Use a smaller sample to speed up model training
+        model_data = data[features + ["medal_won"]].copy()
+
+        for col in features:
+            model_data[col] = pd.to_numeric(model_data[col], errors="coerce")
+
+        if len(model_data) > 10000:
+            model_data = model_data.sample(n=10000, random_state=42)
+
+        st.metric("Training records", f"{len(model_data):,}")
+
+        @st.cache_resource
+        def train_best_models(model_data, features):
+            X = model_data[list(features)]
+            y = model_data["medal_won"]
+
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42
+            )
+
+            models = {
+                "Simple Linear Regression": Pipeline([
+                    ("imputer", SimpleImputer(strategy="median")),
+                    ("model", LinearRegression())
+                ]),
+                "Multiple Linear Regression": Pipeline([
+                    ("imputer", SimpleImputer(strategy="median")),
+                    ("model", LinearRegression())
+                ]),
+                "Decision Tree": Pipeline([
+                    ("imputer", SimpleImputer(strategy="median")),
+                    ("model", DecisionTreeRegressor(
+                        max_depth=10, random_state=42
+                    ))
+                ]),
+                "Random Forest": Pipeline([
+                    ("imputer", SimpleImputer(strategy="median")),
+                    ("model", RandomForestRegressor(
+                        n_estimators=30,
+                        max_depth=12,
+                        random_state=42,
+                        n_jobs=-1
+                    ))
+                ]),
+                "Bagging": Pipeline([
+                    ("imputer", SimpleImputer(strategy="median")),
+                    ("model", BaggingRegressor(
+                        n_estimators=10,
+                        random_state=42,
+                        n_jobs=-1
+                    ))
+                ])
+            }
+
+            # Simple regression uses only one numerical feature
+            simple_feature = features[0]
+
+            simple_X_train = X_train[[simple_feature]]
+            simple_X_test = X_test[[simple_feature]]
+
+            results = []
+            fitted = {}
+
+            for name, model in models.items():
+                if name == "Simple Linear Regression":
+                    model.fit(simple_X_train, y_train)
+                    predictions = model.predict(simple_X_test)
+                else:
+                    model.fit(X_train, y_train)
+                    predictions = model.predict(X_test)
+
+                rmse = float(np.sqrt(mean_squared_error(y_test, predictions)))
+                mae = float(mean_absolute_error(y_test, predictions))
+
+                results.append({
+                    "Model": name,
+                    "RMSE": round(rmse, 4),
+                    "MAE": round(mae, 4)
+                })
+
+                fitted[name] = model
+
+            results_df = pd.DataFrame(results).sort_values(
+                "RMSE"
+            ).reset_index(drop=True)
+
+            return fitted, results_df, simple_feature
+
+        with st.spinner("Training and comparing five models..."):
+            fitted_models, results_df, simple_feature = train_best_models(
+                model_data, tuple(features)
+            )
+
+        best_name = results_df.iloc[0]["Model"]
+        best_model = fitted_models[best_name]
+
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Best Model", best_name)
+        m2.metric("RMSE", f"{results_df.iloc[0]['RMSE']:.4f}")
+        m3.metric("MAE", f"{results_df.iloc[0]['MAE']:.4f}")
+
+        st.subheader("2. Model Comparison")
+        st.dataframe(results_df, use_container_width=True, hide_index=True)
+        st.bar_chart(results_df.set_index("Model")[["RMSE"]])
+
+        st.caption("Lower RMSE indicates better performance on the test set.")
 
 # SECTION 7: CROSS-VALIDATION & HYPERPARAMETER TUNING
 elif menu == "Cross-Validation & Hyperparameter Tuning":
