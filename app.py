@@ -480,16 +480,18 @@ div[data-testid="stExpander"] {
 """, unsafe_allow_html=True)
 
 
-FIGURES_DIR = os.path.join(os.path.dirname(__file__), 'outputs', 'figures')
-DATA_PATH = os.path.join(os.path.dirname(__file__), 'data', 'olympics.csv')
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
+FIGURES_DIR = os.path.join(_BASE_DIR, 'outputs', 'figures')
+DATA_PATH = os.path.join(_BASE_DIR, 'data', 'olympics.csv')
 
 def display_fig(filename, caption=None):
-    import os
-
     filepath = os.path.join(FIGURES_DIR, filename)
 
     if os.path.exists(filepath):
-        st.image(filepath, caption=caption, width="stretch")
+        try:
+            st.image(filepath, caption=caption, width="stretch")
+        except (TypeError, ValueError):
+            st.image(filepath, caption=caption, use_container_width=True)
     else:
         st.warning(f"Figure not found: {filename}")
 
@@ -552,7 +554,7 @@ with st.sidebar:
     st.markdown("""
     <div style="
         text-align:center;
-        padding:22px 8px 20px 8px;
+        padding:22px 14px 18px 14px;
         background:linear-gradient(145deg,#142443,#0B1428);
         border:1px solid #293A5D;
         border-radius:18px;
@@ -571,12 +573,30 @@ with st.sidebar:
             margin:0;
         ">Analytics & Prediction Platform</p>
         <div style="
-            margin:16px auto 0 auto;
+            margin:14px auto 14px auto;
             height:3px;
             width:65px;
             border-radius:5px;
             background:linear-gradient(90deg,#E4B847,#8B9DFF);
         "></div>
+        <div style="
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #2A3C63;
+            border-radius: 30px;
+            margin-top: 4px;
+        ">
+            <img src="https://github.com/Aditipaul17.png" 
+                 style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #E4B847; object-fit: cover;" 
+                 alt="Aditi Paul">
+            <div style="text-align: left; line-height: 1.2;">
+                <div style="color: #94A3B8; font-size: 9px; text-transform: uppercase;">Creator</div>
+                <a href="https://github.com/Aditipaul17" target="_blank" style="color: #F8FAFC; font-size: 12px; font-weight: 700; text-decoration: none;">Aditi Paul</a>
+            </div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -632,7 +652,7 @@ with st.sidebar:
     st.markdown("""
     <div style="
         margin-top:24px;
-        padding:12px;
+        padding:14px;
         text-align:center;
         background:#131F36;
         border:1px solid #293A5D;
@@ -641,7 +661,8 @@ with st.sidebar:
         font-size:11px;
     ">
         🥇 OLYMPIC DATA INTELLIGENCE<br>
-        <span style="color:#657FA8;">Machine Learning Dashboard</span>
+        <span style="color:#657FA8;">Developed by</span>
+        <a href="https://github.com/Aditipaul17" target="_blank" style="color:#E4B847; text-decoration:none; font-weight:700;"> Aditi Paul ↗</a>
     </div>
     """, unsafe_allow_html=True)
 
